@@ -1,0 +1,105 @@
+#
+# Cross Platform Makefile
+# Compatible with MSYS2/MINGW, Ubuntu 14.04.1 and Mac OS X
+#
+# You will need GLFW (http://www.glfw.org):
+# debian linux:
+#   apt-get install libglfw-dev
+# manjaro linux:
+#   pamac install glfw-x11
+# Mac OS X:
+#   brew install glfw
+# MSYS2:
+#   pacman -S --noconfirm --needed mingw-w64-x86_64-toolchain mingw-w64-x86_64-glfw
+#
+
+EXE = lvglWidgets
+LVGL_DIR = lvgl
+LIB_DIR = lib
+
+# Source directory (replace with your actual path)
+SRC_ROOT = src
+
+
+
+# Object files (automatically generated)
+OBJS = $(addsuffix .o, $(basename $(SOURCES)))
+
+# Get all source files recursively (assuming .c extension)
+SOURCES := $(shell find $(SRC_ROOT) -type f -name "*.c" -recursivetarget)
+
+# Get all header files recursively (assuming .h extension)
+HEADERS := $(shell find $(SRC_ROOT) -type f -name "*.h" -recursivetarget)
+
+
+#SOURCES = main.c mouse_cursor_icon.c
+#SOURCES += $(LVGL_DIR)/demos/lv_demos.c
+#SOURCES += $(LVGL_DIR)/demos/widgets/lv_demo_widgets.c
+
+# Get all source files (assuming .c extension)
+SOURCES += $(wildcard $(SRC_ROOT)**/*.c)
+
+SOURCES += $(LVGL_DIR)/src/draw/sdl/lv_draw_sdl.c
+SOURCES += $(LVGL_DIR)/src/drivers/sdl/lv_sdl_window.c
+#SOURCES += $(LVGL_DIR)/src/drivers/sdl/lv_sdl_mouse.c
+
+OBJS = $(addsuffix .c.o, $(basename $(notdir $(SOURCES))))
+UNAME_S := $(shell uname -s)
+
+#-std=c++14
+#INCLUDE_DIRS += -I$(LVGL_DIR)/demos
+#INCLUDE_DIRS += -I$(LVGL_DIR)/demos/widgets
+#INCLUDE_DIRS += -I$(LVGL_DIR)/examples
+#INCLUDE_DIRS += -I$(LVGL_DIR)/examples/widgets
+#INCLUDE_DIRS += -I$(LVGL_DIR)/src/draw/sdl
+#INCLUDE_DIRS += -I$(LVGL_DIR)/src/drivers/sdl
+
+CFLAGS = -pthread -I$(LVGL_DIR)
+# Get all header files (assuming .h extension)
+HEADERS = $(wildcard $(SRC_ROOT)**/*.h)
+
+
+CFLAGS += -g -Wall -Wformat
+#LIBS += -lGL `pkg-config --static --libs glfw3`
+
+CCFLAGS += `pkg-config --cflags glfw3`
+LDFLAGS = -Wl,--hash-style=both
+CFLAGS = $(CCFLAGS)
+
+LVGL_LIBS = -L$(LIB_DIR) -llvgl_examples -llvgl  -llvgl_thorvg  -llvgl_demos # Add LVGL library paths and names
+
+##---------------------------------------------------------------------
+## BUILD RULES
+##---------------------------------------------------------------------
+
+%.c.o:%.c
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+%.c.o:$(LVGL_DIR)/%.c
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+%.c.o:$(LVGL_DIR)/demos/%.c
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+%.c.o:$(LVGL_DIR)/demos/widgets/%.c
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+%.c.o:$(LVGL_DIR)/src/draw/sdl/%.c
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+%.c.o:$(LVGL_DIR)/src/drivers/sdl/%.c
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+all: $(EXE)
+
+$(EXE): $(OBJS)
+	$(CC) -o $@ $^ $(CFLAGS) $(LVGL_LIBS) $(LDFLAGS)
+
+cl:
+	rm -f $(OBJS)
+	rm -f $(EXE)
+
+reb:
+	rm -f $(OBJS)
+	rm -f $(EXE)
+	make
