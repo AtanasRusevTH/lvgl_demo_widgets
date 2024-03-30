@@ -81,6 +81,10 @@ static lv_timer_t * event_handler_timer;
  *   GLOBAL FUNCTIONS
  **********************/
 
+bool lv_sdl_inited_state(){
+    return inited;
+}
+
 lv_display_t * lv_sdl_window_create(int32_t hor_res, int32_t ver_res)
 {
     if(!inited) {
@@ -322,6 +326,7 @@ static void window_create(lv_display_t * disp)
 #endif /*LV_USE_DRAW_SDL == 0*/
     /*Some platforms (e.g. Emscripten) seem to require setting the size again */
     SDL_SetWindowSize(dsc->window, hor_res * dsc->zoom, ver_res * dsc->zoom);
+    SDL_SetWindowBordered(dsc->window, SDL_TRUE);
 #if LV_USE_DRAW_SDL == 0
     texture_resize(disp);
 #endif /*LV_USE_DRAW_SDL == 0*/

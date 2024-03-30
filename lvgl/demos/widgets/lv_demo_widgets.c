@@ -31,6 +31,7 @@ typedef enum {
  *  STATIC PROTOTYPES
  **********************/
 static void profile_create(lv_obj_t * parent);
+static void SWITCH_create(lv_obj_t * parent);
 static void analytics_create(lv_obj_t * parent);
 static void shop_create(lv_obj_t * parent);
 static void color_changer_create(lv_obj_t * parent);
@@ -108,8 +109,12 @@ static lv_style_t scale3_section3_tick_style;
  *   GLOBAL FUNCTIONS
  **********************/
 
-void lv_demo_widgets(void)
+taskChangeRes_t * callbackResult_ptr = NULL;
+
+void lv_demo_widgets(taskChangeRes_t *callbackResult)
 {
+    if (NULL != callbackResult) callbackResult_ptr = callbackResult;
+
     if(LV_HOR_RES <= 320) disp_size = DISP_SMALL;
     else if(LV_HOR_RES < 720) disp_size = DISP_MEDIUM;
     else disp_size = DISP_LARGE;
@@ -186,6 +191,7 @@ void lv_demo_widgets(void)
     lv_obj_t * t1 = lv_tabview_add_tab(tv, "Profile");
     lv_obj_t * t2 = lv_tabview_add_tab(tv, "Analytics");
     lv_obj_t * t3 = lv_tabview_add_tab(tv, "Shop");
+    lv_obj_t * t4 = lv_tabview_add_tab(tv, "SWITCH");
 
     if(disp_size == DISP_LARGE) {
         lv_obj_t * tab_bar = lv_tabview_get_tab_bar(tv);
@@ -212,6 +218,7 @@ void lv_demo_widgets(void)
     profile_create(t1);
     analytics_create(t2);
     shop_create(t3);
+    SWITCH_create(t4);
 
     color_changer_create(tv);
 }
@@ -240,6 +247,153 @@ void lv_demo_widgets_start_slideshow(void)
 /**********************
  *   STATIC FUNCTIONS
  **********************/
+
+static void event_cb_imguiDemo(lv_event_t * e)
+{
+    LV_LOG_USER("Clicked IMGUI DEMO");
+    if (NULL != callbackResult_ptr) 
+        *callbackResult_ptr = startImguiDemo;
+
+    lv_obj_t * btn = lv_event_get_target(e);    
+
+}
+
+static void event_cb_sysmon(lv_event_t * e)
+{
+    LV_LOG_USER("Clicked SYSMON");
+    if (NULL != callbackResult_ptr) 
+        *callbackResult_ptr = startSysmon;
+
+    lv_obj_t * btn = lv_event_get_target(e);
+}
+
+static void event_cb_QUIT(lv_event_t * e)
+{
+    LV_LOG_USER("Clicked QUIT");
+    if (NULL != callbackResult_ptr) 
+        *callbackResult_ptr = quitApp;
+    lv_obj_t * btn = lv_event_get_target(e);
+}
+
+static void SWITCH_create(lv_obj_t * parent)
+{
+    lv_obj_t * panel1 = lv_obj_create(parent);
+    lv_obj_set_height(panel1, LV_SIZE_CONTENT);
+
+
+    lv_obj_t * name = lv_label_create(panel1);
+    lv_label_set_text(name, "SWITCH to Imgui DEMO or the System monitor");
+    lv_obj_add_style(name, &style_title, 0);
+
+    // IMGUI DEMO -------------------
+    lv_obj_t * imgui_demo_btn = lv_button_create(panel1);
+    lv_obj_set_height(imgui_demo_btn, LV_SIZE_CONTENT);
+    lv_obj_add_event_cb(imgui_demo_btn, event_cb_imguiDemo, LV_EVENT_CLICKED, NULL);
+
+    lv_obj_t * label = lv_label_create(imgui_demo_btn);
+    lv_label_set_text(label, "IMGUI DEMO");
+    lv_obj_center(label);
+
+    // SYSMON -------------------
+    lv_obj_t * sysmon_btn = lv_button_create(panel1);
+    // lv_obj_add_state(sysmon_btn, LV_STATE_DISABLED);
+    lv_obj_set_height(sysmon_btn, LV_SIZE_CONTENT);
+    lv_obj_add_event_cb(sysmon_btn, event_cb_sysmon, LV_EVENT_CLICKED, NULL);
+
+    label = lv_label_create(sysmon_btn);
+    lv_label_set_text(label, "SYSMON");
+    lv_obj_center(label);
+
+    // QUIT -------------------
+    lv_obj_t * imgui_quit_btn = lv_button_create(panel1);
+    lv_obj_set_height(imgui_quit_btn, LV_SIZE_CONTENT);
+    lv_obj_add_event_cb(imgui_quit_btn, event_cb_QUIT, LV_EVENT_CLICKED, NULL);
+
+    label = lv_label_create(imgui_quit_btn);
+    lv_label_set_text(label, "QUIT");
+    lv_obj_center(label);
+
+////////////////////////////////////////////////////
+
+    if(disp_size == DISP_LARGE) {
+
+    LV_LOG_USER("DISP_LARGE");
+        static int32_t grid_main_col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
+        static int32_t grid_main_row_dsc[] = {LV_GRID_CONTENT, LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
+
+        /*Create the top panel*/
+        static int32_t grid_1_col_dsc[] = {LV_GRID_CONTENT, 5, LV_GRID_CONTENT, LV_GRID_FR(2), LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
+        static int32_t grid_1_row_dsc[] = {LV_GRID_CONTENT, LV_GRID_CONTENT, 10, LV_GRID_CONTENT, LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
+
+        lv_obj_set_grid_dsc_array(parent, grid_main_col_dsc, grid_main_row_dsc);
+
+        lv_obj_set_grid_cell(panel1, LV_GRID_ALIGN_STRETCH, 0, 2, LV_GRID_ALIGN_CENTER, 0, 1);
+
+        lv_obj_set_grid_dsc_array(panel1, grid_1_col_dsc, grid_1_row_dsc);        
+        lv_obj_set_grid_cell(name, LV_GRID_ALIGN_START, 2, 2, LV_GRID_ALIGN_CENTER, 0, 1);
+        lv_obj_set_grid_cell(imgui_demo_btn, LV_GRID_ALIGN_SPACE_EVENLY, 1, 1, LV_GRID_ALIGN_SPACE_EVENLY, 3, 2);
+        lv_obj_set_grid_cell(sysmon_btn, LV_GRID_ALIGN_SPACE_EVENLY, 3, 1, LV_GRID_ALIGN_SPACE_EVENLY, 3, 2);
+        lv_obj_set_grid_cell(imgui_quit_btn, LV_GRID_ALIGN_SPACE_EVENLY, 5, 1, LV_GRID_ALIGN_SPACE_EVENLY, 3, 2);        
+    }
+    else if(disp_size == DISP_MEDIUM) {
+    LV_LOG_USER("DISP_MEDIUM");
+        static int32_t grid_main_col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
+        static int32_t grid_main_row_dsc[] = {LV_GRID_CONTENT, LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
+
+        /*Create the top panel*/
+        static int32_t grid_1_col_dsc[] = { LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
+        static int32_t grid_1_row_dsc[] = {
+            LV_GRID_CONTENT, /*Name*/
+            LV_GRID_CONTENT, /*Description*/
+            LV_GRID_CONTENT, /*Email*/
+            -20,
+            LV_GRID_CONTENT, /*Phone*/
+            LV_GRID_CONTENT, /*Buttons*/
+            LV_GRID_TEMPLATE_LAST
+        };
+
+        lv_obj_set_grid_dsc_array(parent, grid_main_col_dsc, grid_main_row_dsc);
+        lv_obj_set_grid_cell(panel1, LV_GRID_ALIGN_STRETCH, 0, 2, LV_GRID_ALIGN_CENTER, 0, 1);
+
+        /*lv_obj_set_width(imgui_demo_btn, 120);
+        lv_obj_set_width(sysmon_btn, 120);
+        lv_obj_set_width(imgui_quit_btn, 120);*/
+
+        lv_obj_set_grid_dsc_array(panel1, grid_1_col_dsc, grid_1_row_dsc);        
+        lv_obj_set_grid_cell(name, LV_GRID_ALIGN_START, 0, 4, LV_GRID_ALIGN_START, 0, 1);
+        lv_obj_set_grid_cell(imgui_demo_btn, LV_GRID_ALIGN_CENTER, 0, 2, LV_GRID_ALIGN_CENTER, 5, 2);
+        lv_obj_set_grid_cell(sysmon_btn, LV_GRID_ALIGN_CENTER, 2, 2, LV_GRID_ALIGN_CENTER, 5, 2);
+        lv_obj_set_grid_cell(imgui_quit_btn, LV_GRID_ALIGN_CENTER, 4, 2, LV_GRID_ALIGN_CENTER, 5, 2);        
+    }
+    else if(disp_size == DISP_SMALL) {
+        LV_LOG_USER("DISP_SMALL");
+        static int32_t grid_main_col_dsc[] = {LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
+        static int32_t grid_main_row_dsc[] = {LV_GRID_CONTENT, LV_GRID_CONTENT, LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
+        lv_obj_set_grid_dsc_array(parent, grid_main_col_dsc, grid_main_row_dsc);
+
+        /*Create the top panel*/
+        static int32_t grid_1_col_dsc[] = {LV_GRID_CONTENT, LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
+        static int32_t grid_1_row_dsc[] = {LV_GRID_CONTENT, /*Avatar*/
+                                           LV_GRID_CONTENT, /*Name*/
+                                           LV_GRID_CONTENT, /*Description*/
+                                           LV_GRID_CONTENT, /*Email*/
+                                           LV_GRID_CONTENT, /*Phone number*/
+                                           LV_GRID_CONTENT, /*Button1*/
+                                           LV_GRID_CONTENT, /*Button2*/
+                                           LV_GRID_CONTENT, /*Button3*/
+                                           LV_GRID_TEMPLATE_LAST
+                                          };
+
+        lv_obj_set_grid_dsc_array(panel1, grid_1_col_dsc, grid_1_row_dsc);
+
+        lv_obj_set_grid_cell(panel1, LV_GRID_ALIGN_STRETCH, 0, 1, LV_GRID_ALIGN_CENTER, 0, 1);
+
+        lv_obj_set_grid_cell(name, LV_GRID_ALIGN_CENTER, 0, 2, LV_GRID_ALIGN_CENTER, 1, 1);
+        lv_obj_set_grid_cell(imgui_demo_btn, LV_GRID_ALIGN_SPACE_EVENLY, 0, 2, LV_GRID_ALIGN_SPACE_EVENLY, 5, 1);
+        lv_obj_set_grid_cell(sysmon_btn, LV_GRID_ALIGN_SPACE_EVENLY, 0, 2, LV_GRID_ALIGN_SPACE_EVENLY, 6, 1);
+        lv_obj_set_grid_cell(imgui_quit_btn, LV_GRID_ALIGN_SPACE_EVENLY, 0, 2, LV_GRID_ALIGN_SPACE_EVENLY, 5, 1);        
+    }
+}
 
 static void profile_create(lv_obj_t * parent)
 {

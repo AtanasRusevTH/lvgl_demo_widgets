@@ -18,6 +18,16 @@ extern "C" {
 #define LVGL_VERSION_PATCH 0
 #define LVGL_VERSION_INFO  ""
 
+
+typedef enum taskChangeRes {
+     doNothing = 0,
+     startSysmon = 1,
+     startImguiDemo = 2,
+     startLVGLdemo = 3,
+     quitApp = 4,
+} taskChangeRes_t;
+
+
 /*********************
  *      INCLUDES
  *********************/

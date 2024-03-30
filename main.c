@@ -60,10 +60,15 @@ static lv_display_t * hal_init(int32_t w, int32_t h);
  *   GLOBAL FUNCTIONS
  **********************/
 
+volatile taskChangeRes_t callbackResult = doNothing;
+
 int main(int argc, char **argv)
 {
   (void)argc; /*Unused*/
   (void)argv; /*Unused*/
+  int result = 0;
+
+  callbackResult = doNothing;
 
   /*Initialize LVGL*/
   lv_init();
@@ -71,16 +76,42 @@ int main(int argc, char **argv)
   /*Initialize the HAL (display, input devices, tick) for LVGL*/
   hal_init(480, 272);
 
-  lv_demo_widgets();
+  
+  lv_demo_widgets(&callbackResult);
+
 
   while(1) {
     /* Periodically call the lv_task handler.
      * It could be done in a timer interrupt or an OS task too.*/
     lv_timer_handler();
+    if (doNothing != callbackResult || false == lv_sdl_inited_state()){
+
+      LV_LOG_USER("Got different CALLBACK RESULT /n");
+      switch (callbackResult) {
+        case startSysmon: {
+
+      LV_LOG_USER("startSysmon /n");
+          result = 1;
+          break;          
+        }
+        case startImguiDemo: {
+      LV_LOG_USER("startImguiDemo /n");
+          result = 2;
+          break;          
+        }
+        default: {
+
+      LV_LOG_USER("quit /n");
+          result = 4; // quit
+          break;
+        }
+      } 
+      break;
+    }
     usleep(5 * 1000);
   }
 
-  return 0;
+  return result;
 }
 
 /**********************

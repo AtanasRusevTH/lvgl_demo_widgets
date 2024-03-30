@@ -2786,7 +2786,7 @@
         #ifdef CONFIG_LV_SDL_FULLSCREEN
             #define LV_SDL_FULLSCREEN CONFIG_LV_SDL_FULLSCREEN
         #else
-            #define LV_SDL_FULLSCREEN       0    /*1: Make the window full screen by default*/
+            #define LV_SDL_FULLSCREEN       1    /*1: Make the window full screen by default*/
         #endif
     #endif
     #ifndef LV_SDL_DIRECT_EXIT
